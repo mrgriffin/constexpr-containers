@@ -326,13 +326,13 @@ public:
 
 	constexpr T operator[](size_type pos) { return fail(), T(); }
 
-	constexpr basic_list set(size_type pos, T const& value) { return fail(), *this; }
+	constexpr basic_list set(size_type pos, T const& value) { return *this; }
 
-	constexpr basic_list insert(size_type pos, T const& value) { return fail(), *this; }
-	constexpr basic_list insert(size_type pos, std::initializer_list<T> values) { return fail(), *this; }
+	constexpr basic_list insert(size_type pos, T const& value) { return *this; }
+	constexpr basic_list insert(size_type pos, std::initializer_list<T> values) { return *this; }
 
-	constexpr basic_list erase(size_type pos) { return fail(), *this; }
-	constexpr basic_list erase(size_type first, size_type last) { return fail(), *this; }
+	constexpr basic_list erase(size_type pos) { return *this; }
+	constexpr basic_list erase(size_type first, size_type last) { return *this; }
 
 	constexpr size_type size() { return 0; }
 

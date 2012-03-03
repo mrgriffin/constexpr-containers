@@ -507,13 +507,36 @@ void test_ctor_ilist_T_n_n() {
 }
 
 /*
+ * operator[](size_type)
+ */
+
+//! Out-of-bounds index operation with \p N = 0.
+void test_index_op_oob_0() { FAIL(
+	constexpr auto list = basic_list<int, 0>();
+	list[0];
+)}
+
+//! Out-of-bounds index operation with \p N = 1.
+void test_index_op_oob_1() { FAIL(
+	constexpr auto list = basic_list<int, 1>();
+	list[1];
+)}
+
+//! Out-of-bounds index operation with \p N = 2.
+void test_index_op_oob_n() { FAIL(
+	constexpr auto list = basic_list<int, 2>();
+	list[2];
+)}
+
+/*
  * set(size_type, T const&)
  */
 
 //! Set with \p list = {}, \p pos = 0, \p value = 2.
-void test_set_0_0() { FAIL(
+void test_set_0_0() {
 	constexpr auto list = basic_list<int, 0>().set(0, 2);
-)}
+	static_assert(list.size() == 0, "basic_list<int, 0>.size() != 0");
+}
 
 //! Set with \p list = { 0 }, \p pos = 0, \p value = 2.
 void test_set_0_1() {
@@ -523,9 +546,11 @@ void test_set_0_1() {
 }
 
 //! Set with \p list = { 0 }, \p pos = 1, \p value = 2.
-void test_set_1_1() { FAIL(
+void test_set_1_1() {
 	constexpr auto list = basic_list<int, 1>({ 0 }).set(1, 2);
-)}
+	static_assert(list[0] == 0, "basic_list<int, 1>[0] != 0");
+	static_assert(list.size() == 1, "basic_list<int, 1>.size() != 1");
+}
 
 //! Set with \p list = { 0, 1 }, \p pos = 0, \p value = 2.
 void test_set_0_n() {
@@ -544,9 +569,12 @@ void test_set_1_n() {
 }
 
 //! Set with \p list = { 0, 1 }, \p pos = 2, \p value = 2.
-void test_set_n_n() { FAIL(
+void test_set_n_n() {
 	constexpr auto list = basic_list<int, 2>({ 0, 1 }).set(2, 2);
-)}
+	static_assert(list[0] == 0, "basic_list<int, 2>[0] != 0");
+	static_assert(list[1] == 1, "basic_list<int, 2>[1] != 1");
+	static_assert(list.size() == 2, "basic_list<int, 2>.size() != 2");
+}
 
 int main() {
 	test_ctor_0();           test_ctor_1();           test_ctor_n();
