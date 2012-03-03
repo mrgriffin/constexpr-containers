@@ -103,7 +103,7 @@ public:
 	//! \details The remaining elements are default-constructed.
 	template<std::size_t M>
 	constexpr basic_list(basic_list<T, M> const& that)
-		: basic_list(that.cbegin(), that.cend(), T())
+		: basic_list(that, T())
 		{}
 
 	constexpr basic_list(basic_list<T, 0> const& that)
@@ -125,7 +125,7 @@ public:
 	//! \details The remaining elements are default-constructed.
 	template<std::size_t M>
 	constexpr explicit basic_list(T const (&values)[M])
-		: basic_list(values, 0, T())
+		: basic_list(values, T())
 		{}
 
 	constexpr explicit basic_list(T const (&values)[0])
@@ -145,7 +145,7 @@ public:
 	//! Constructs a list containing up to the first \p N elements of \p values.
 	//! \details The remaining elements are default-constructed.
 	constexpr basic_list(std::initializer_list<T> values)
-		: basic_list(values.begin(), values.end(), T()) {}
+		: basic_list(values, T()) {}
 
 	//! Constructs a list containing up to the first \p N elements of \p values.
 	//! \details The remaining elements are copy-constructed from \p value.

@@ -215,6 +215,7 @@ void test_copy_T_n_n() {
  */
 
 //! Array-constructor with \p values = {}, \p N = 0 and \p M = 0.
+//! \bug Test is not legal C++ (zero-length array).
 void test_ctor_Ts_0_0() {
 	constexpr int that[0] = {};
 	constexpr auto list = basic_list<int, 0>(that);
@@ -222,6 +223,7 @@ void test_ctor_Ts_0_0() {
 }
 
 //! Array-constructor with \p values = {}, \p N = 1 and \p M = 0.
+//! \bug Test is not legal C++ (zero-length array).
 void test_ctor_Ts_1_0() {
 	constexpr int that[0] = {};
 	constexpr auto list = basic_list<int, 1>(that);
@@ -230,6 +232,7 @@ void test_ctor_Ts_1_0() {
 }
 
 //! Array-constructor with \p values = {}, \p N = 2 and \p M = 0.
+//! \bug Test is not legal C++ (zero-length array).
 void test_ctor_Ts_n_0() {
 	constexpr int that[0] = {};
 	constexpr auto list = basic_list<int, 2>(that);
@@ -291,6 +294,7 @@ void test_ctor_Ts_n_n() {
  */
 
 //! Array-constructor with \p values = {}, \p value = 3, \p N = 0 and \p M = 0.
+//! \bug Test is not legal C++ (zero-length array).
 void test_ctor_Ts_T_0_0() {
 	constexpr int that[0] = {};
 	constexpr auto list = basic_list<int, 0>(that, 3);
@@ -298,6 +302,7 @@ void test_ctor_Ts_T_0_0() {
 }
 
 //! Array-constructor with \p values = {}, \p value = 3, \p N = 1 and \p M = 0.
+//! \bug Test is not legal C++ (zero-length array).
 void test_ctor_Ts_T_1_0() {
 	constexpr int that[0] = {};
 	constexpr auto list = basic_list<int, 1>(that, 3);
@@ -306,6 +311,7 @@ void test_ctor_Ts_T_1_0() {
 }
 
 //! Array-constructor with \p values = {}, \p value = 3, \p N = 2 and \p M = 0.
+//! \bug Test is not legal C++ (zero-length array).
 void test_ctor_Ts_T_n_0() {
 	constexpr int that[0] = {};
 	constexpr auto list = basic_list<int, 2>(that, 3);
