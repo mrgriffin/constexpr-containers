@@ -576,6 +576,54 @@ void test_set_n_n() {
 	static_assert(list.size() == 2, "basic_list<int, 2>.size() != 2");
 }
 
+/*
+ * insert(size_type, T const&)
+ */
+
+//! Insert with \p list = {}, \p pos = 0, \p value = 2.
+void test_insert_0_T_0() {
+	constexpr auto list = basic_list<int, 0>().insert(0, 2);
+	static_assert(list.size() == 0, "basic_list<int, 0>.size() != 0");
+}
+
+//! Insert with \p list = { 0 }, \p pos = 0, \p value = 2.
+void test_insert_0_T_1() {
+	constexpr auto list = basic_list<int, 1>({ 0 }).insert(0, 2);
+	static_assert(list[0] == 2, "basic_list<int, 1>[0] != 2");
+	static_assert(list.size() == 1, "basic_list<int, 1>.size() != 1");
+}
+
+//! Insert with \p list = { 0 }, \p pos = 1, \p value = 2.
+void test_insert_1_T_1() {
+	constexpr auto list = basic_list<int, 1>({ 0 }).insert(1, 2);
+	static_assert(list[0] == 0, "basic_list<int, 1>[0] != 1");
+	static_assert(list.size() == 1, "basic_list<int, 1>.size() != 1");
+}
+
+//! Insert with \p list = { 0, 1 }, \p pos = 0, \p value = 2.
+void test_insert_0_T_n() {
+	constexpr auto list = basic_list<int, 2>({ 0, 1 }).insert(0, 2);
+	static_assert(list[0] == 2, "basic_list<int, 2>[0] != 2");
+	static_assert(list[1] == 0, "basic_list<int, 2>[1] != 0");
+	static_assert(list.size() == 2, "basic_list<int, 2>.size() != 2");
+}
+
+//! Insert with \p list = { 0, 1 }, \p pos = 1, \p value = 2.
+void test_insert_1_T_n() {
+	constexpr auto list = basic_list<int, 2>({ 0, 1 }).insert(1, 2);
+	static_assert(list[0] == 0, "basic_list<int, 2>[0] != 0");
+	static_assert(list[1] == 2, "basic_list<int, 2>[1] != 2");
+	static_assert(list.size() == 2, "basic_list<int, 2>.size() != 2");
+}
+
+//! Insert with \p list = { 0, 1 }, \p pos = 2, \p value = 2.
+void test_insert_n_T_n() {
+	constexpr auto list = basic_list<int, 2>({ 0, 1 }).insert(2, 2);
+	static_assert(list[0] == 0, "basic_list<int, 2>[0] != 0");
+	static_assert(list[1] == 1, "basic_list<int, 2>[1] != 1");
+	static_assert(list.size() == 2, "basic_list<int, 2>.size() != 2");
+}
+
 int main() {
 	test_ctor_0();           test_ctor_1();           test_ctor_n();
 
@@ -608,4 +656,8 @@ int main() {
 	test_set_0_0();
 	test_set_0_1();          test_set_1_1();
 	test_set_0_n();          test_set_1_n();           test_set_n_n();
+
+	test_insert_0_T_0();
+	test_insert_0_T_1();     test_insert_1_T_1();
+	test_insert_0_T_n();     test_insert_1_T_n();      test_insert_n_T_n();
 }
