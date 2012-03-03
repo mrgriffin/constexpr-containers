@@ -65,7 +65,8 @@ private:
 
 template<typename T, std::size_t N>
 constexpr bool operator==(basic_list_iterator<T, N> lhs, basic_list_iterator<T, N> rhs) {
-	return &lhs.list == &rhs.list && lhs.position == rhs.position;
+	// TODO: How do we compare two lists for identity equality?
+	return /*&lhs.list == &rhs.list && */lhs.position == rhs.position;
 }
 
 template<typename T, std::size_t N>
@@ -86,47 +87,68 @@ public:
 	typedef basic_list_iterator<T, N> const_iterator;
 
 	//! Constructs a list containing up to \p N elements.
-	//! \details The unused elements are default-constructed.
+	//! \details The elements are default-constructed.
 	constexpr basic_list()
 		: head()
 		{}
 
 	//! Constructs a list containing up to \p N elements.
-	//! \details The unused elements are copy-constructed from \p value.
+	//! \details The elements are copy-constructed from \p value.
 	constexpr explicit basic_list(T const& value)
 		: head(value)
 		, tail(value)
 		{}
 
 	//! Constructs a list containing up to the first \p N elements of \p that.
-	//! \details The unused elements are default-constructed.
+	//! \details The remaining elements are default-constructed.
 	template<std::size_t M>
-	constexpr basic_list(basic_list<T, M> const& that);
+	constexpr basic_list(basic_list<T, M> const& that)
+		: basic_list(that.cbegin(), that.cend(), T())
+		{}
+
+	constexpr basic_list(basic_list<T, 0> const& that)
+		: basic_list()
+		{}
 
 	//! Constructs a list containing up to the first \p N elements of \p that.
-	//! \details The unused elements are copy-constructed from \p value.
+	//! \details The remaining elements are copy-constructed from \p value.
 	template<std::size_t M>
-	constexpr basic_list(basic_list<T, M> const& that, T const& value);
+	constexpr basic_list(basic_list<T, M> const& that, T const& value)
+		: basic_list(that.cbegin(), that.cend(), value)
+		{}
+
+	constexpr basic_list(basic_list<T, 0> const& that, T const& value)
+		: basic_list(value)
+		{}
 
 	//! Constructs a list containing up to the first \p N elements of \p values.
-	//! \details The unused elements are default-constructed.
+	//! \details The remaining elements are default-constructed.
 	template<std::size_t M>
 	constexpr explicit basic_list(T const (&values)[M])
-		: basic_list(values, M, T()) {}
+		: basic_list(values, 0, T())
+		{}
+
+	constexpr explicit basic_list(T const (&values)[0])
+		: basic_list()
+		{}
 
 	//! Constructs a list containing up to the first \p N elements of \p values.
-	//! \details The unused elements are copy-constructed from \p value.
+	//! \details The remaining elements are copy-constructed from \p value.
 	template<std::size_t M>
 	constexpr basic_list(T const (&values)[M], T const& value)
-		: basic_list(values, M, value) {}
+		: basic_list(values, 0, value) {}
+
+	constexpr explicit basic_list(T const (&values)[0], T const& value)
+		: basic_list(value)
+		{}
 
 	//! Constructs a list containing up to the first \p N elements of \p values.
-	//! \details The unused elements are default-constructed.
+	//! \details The remaining elements are default-constructed.
 	constexpr basic_list(std::initializer_list<T> values)
 		: basic_list(values.begin(), values.end(), T()) {}
 
 	//! Constructs a list containing up to the first \p N elements of \p values.
-	//! \details The unused elements are copy-constructed from \p value.
+	//! \details The remaining elements are copy-constructed from \p value.
 	constexpr basic_list(std::initializer_list<T> values, T const& value)
 		: basic_list(values.begin(), values.end(), value) {}
 
@@ -144,27 +166,38 @@ public:
 
 	//! Inserts an element at \p pos.
 	constexpr basic_list insert(size_type pos, T const& value) {
-		// TODO: Replace T() with something else.
-		// HINT: T() will never be used.
-		return { cbegin(), cbegin() + pos, value, false, cbegin() + pos, cend(), T() };
+		// HINT: head will never be used.
+		return { cbegin(), cbegin() + pos, value, false, cbegin() + pos, cend(), head };
 	}
 
 	//! Inserts a series of elements at \p pos.
 	constexpr basic_list insert(size_type pos, std::initializer_list<T> values) {
-		// TODO: Replace T() with something else.
-		// HINT: T() will never be used.
-		return { cbegin(), cbegin() + pos, values.begin(), values.end(), cbegin() + pos, cend(), T() };
+		// HINT: head will never be used.
+		return { cbegin(), cbegin() + pos, values.begin(), values.end(), cbegin() + pos, cend(), head };
 	}
 
 	//! Removes the element at \p pos.
+	//! \details The element at \p N - 1 is default-constructed.
 	constexpr basic_list erase(size_type pos) {
-		return erase(pos, pos + 1);
+		return erase(pos, T());
+	}
+
+	//! Removes the element at \p pos.
+	//! \details The element at \p N - 1 is copy-constructed from \p value.
+	constexpr basic_list erase(size_type pos, T const& value) {
+		return erase(pos, pos + 1, value);
 	}
 
 	//! Removes the elements in the range [ \p first, \p last ).
+	//! \details The new elements at the end are default-constructed.
 	constexpr basic_list erase(size_type first, size_type last) {
-		// TODO: Replace T() with something else.
-		return { cbegin(), cbegin() + first, cbegin() + last, cend(), T() };
+		return erase(first, last, T());
+	}
+
+	//! Removes the elements in the range [ \p first, \p last ).
+	//! \details The new elements at the end are copy-constructed from \p value.
+	constexpr basic_list erase(size_type first, size_type last, T const& value) {
+		return { cbegin(), cbegin() + first, cbegin() + last, cend(), value };
 	}
 
 	//! Returns the number of elements.
@@ -194,13 +227,15 @@ public:
 
 private:
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
-	//! \details The unused elements are copy-constructed from \p value.
+	//! \details The remaining elements are copy-constructed from \p value.
 	template<class InputIterator>
 	constexpr basic_list(InputIterator first, InputIterator last, T const& value)
 		: head(first != last ? *first : value)
-		, tail(first + 1, last, value)
+		, tail(first != last ? first + 1 : first, last, value)
 		{}
 
+	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ ( \p first2, \p last2 ].
+	//! \details The remaining elements are copy-constructed from \p value.
 	template<class InputIterator1, class InputIterator2>
 	constexpr basic_list(
 		InputIterator1 first1, InputIterator1 last1,
@@ -213,6 +248,9 @@ private:
 			value)
 		{}
 
+	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ \p insert ++ ( \p first2, \p last2 ].
+	//! \details \p inserted should be false when called non-recursively.
+	//! \details The remaining elements are copy-constructed from \p value.
 	template<class InputIterator1, class InputIterator2>
 	constexpr basic_list(
 		InputIterator1 first1, InputIterator1 last1,
@@ -227,6 +265,8 @@ private:
 			value)
 		{}
 
+	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ ( \p first2, \p last2 ] ++ ( \p first3, \p last3 ].
+	//! \details The remaining elements are copy-constructed from \p value.
 	template<class InputIterator1, class InputIterator2, class InputIterator3>
 	constexpr basic_list(
 		InputIterator1 first1, InputIterator1 last1,
@@ -239,6 +279,15 @@ private:
 			first1 == last1 && first2 != last2 ? first2 + 1 : first2, last2,
 			first1 == last1 && first2 == last2 && first3 != last3 ? first3 + 1 : first3, last3,
 			value)
+		{}
+
+	//! Constructs a list containing the first \p N elements in \p values.
+	//! \details The remaining elements are copy-constructed from \p value.
+	//! \deprecated Will be removed once GCC stops ICEing on std::begin.
+	template<std::size_t M>
+	constexpr basic_list(T const (&values)[M], size_type pos, T const& value)
+		: head(pos < M ? values[pos] : value)
+		, tail(values, pos + 1, value)
 		{}
 
 	T head;
@@ -265,9 +314,11 @@ public:
 
 	template<std::size_t M>
 	constexpr explicit basic_list(T const (&values)[M]) {}
+	constexpr explicit basic_list(T const (&values)[0]) {}
 
 	template<std::size_t M>
 	constexpr basic_list(T const (&values)[M], T const& value) {}
+	constexpr basic_list(T const (&values)[0], T const& value) {}
 
 	constexpr basic_list(std::initializer_list<T> values) {}
 	constexpr basic_list(std::initializer_list<T> values, T const& value) {}
@@ -284,11 +335,12 @@ public:
 
 	constexpr size_type size() { return 0; }
 
-	constexpr const_iterator begin() { return cbegin(); }
-	constexpr const_iterator cbegin() { return const_iterator(*this); }
+	// TODO: Fix cbegin and cend.
+	//constexpr const_iterator begin() { return cbegin(); }
+	//constexpr const_iterator cbegin() { return const_iterator(*this); }
 
-	constexpr const_iterator end() { return cend(); }
-	constexpr const_iterator cend() { return const_iterator(*this); }
+	//constexpr const_iterator end() { return cend(); }
+	//constexpr const_iterator cend() { return const_iterator(*this); }
 
 private:
 	constexpr int fail() { return throw "attempt to access outside of array", 0; }
@@ -304,6 +356,9 @@ private:
 
 	template<class InputIterator1, class InputIterator2, class InputIterator3>
 	constexpr basic_list(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2, InputIterator3 first3, InputIterator3 last3, T const& value) {}
+
+	template<std::size_t M>
+	constexpr basic_list(T const (&values)[M], size_type pos, T const& value) {}
 };
 
 }
