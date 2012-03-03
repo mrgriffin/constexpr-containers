@@ -251,6 +251,7 @@ private:
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ \p insert ++ ( \p first2, \p last2 ].
 	//! \details \p inserted should be false when called non-recursively.
 	//! \details The remaining elements are copy-constructed from \p value.
+	//! \deprecated Will be removed once I find a way to take an "iterator" to a single value.
 	template<class InputIterator1, class InputIterator2>
 	constexpr basic_list(
 		InputIterator1 first1, InputIterator1 last1,
