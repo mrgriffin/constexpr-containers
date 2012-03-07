@@ -175,6 +175,8 @@ public:
 	//! Inserts a series of elements at \p pos.
 	constexpr basic_list insert(size_type pos, std::initializer_list<T> values) {
 		// HINT: head will never be used.
+		// TODO: Optimize the case values = {} to "return *this".
+		// TODO: Optimize the case pos > N to "return *this".
 		return { cbegin(), cbegin() + pos, values.begin(), values.end(), cbegin() + pos, cend(), head };
 	}
 
@@ -199,6 +201,9 @@ public:
 	//! Removes the elements in the range [ \p first, \p last ).
 	//! \details The new elements at the end are copy-constructed from \p value.
 	constexpr basic_list erase(size_type first, size_type last, T const& value) {
+		// TODO: Optimize the case first == last + 1 to "return *this".
+		// TODO: Optimize the case first > N to "return *this".
+		// TODO: Throw when first > last + 1.
 		return { cbegin(), cbegin() + first, cbegin() + last, cend(), value };
 	}
 
