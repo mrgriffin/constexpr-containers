@@ -192,4 +192,16 @@ TEST(insert_Ts_1_2_n) { WITH(int, 2, {0,1}); DO(.insert(1, {2,3})); EXPECTING(2,
 
 FAIL(TEST(insert_Ts_2_0_n) { WITH(int, 2, {0,1}); DO(.insert(2, {})); })
 
+
+// erase(size_type)
+FAIL(TEST(erase_0_0) { WITH(int, 0, {}); DO(.erase(0)); })
+TEST(erase_0_1) { WITH(int, 1, {1}); DO(.erase(0)); EXPECTING(1, {0}); }
+TEST(erase_0_n) { WITH(int, 2, {1,2}); DO(.erase(0)); EXPECTING(2, {2,0}); }
+
+
+// erase(size_type, T const&)
+FAIL(TEST(erase_T_0_0) { WITH(int, 0, {}); DO(.erase(0, 3)); })
+TEST(erase_T_0_1) { WITH(int, 1, {1}); DO(.erase(0, 3)); EXPECTING(1, {3}); }
+TEST(erase_T_0_n) { WITH(int, 2, {1,2}); DO(.erase(0, 3)); EXPECTING(2, {2,3}); }
+
 int main() {}
