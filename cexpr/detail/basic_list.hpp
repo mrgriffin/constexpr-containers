@@ -128,21 +128,11 @@ public:
 		: basic_list(values, T())
 		{}
 
-	//! \bug Not legal C++ (zero-length array).
-	constexpr explicit basic_list(T const (&values)[0])
-		: basic_list()
-		{}
-
 	//! Constructs a list containing up to the first \p N elements of \p values.
 	//! \details The remaining elements are copy-constructed from \p value.
 	template<std::size_t M>
 	constexpr basic_list(T const (&values)[M], T const& value)
 		: basic_list(values, 0, value) {}
-
-	//! \bug Not legal C++ (zero-length array).
-	constexpr explicit basic_list(T const (&values)[0], T const& value)
-		: basic_list(value)
-		{}
 
 	//! Constructs a list containing up to the first \p N elements of \p values.
 	//! \details The remaining elements are default-constructed.
@@ -322,11 +312,9 @@ public:
 
 	template<std::size_t M>
 	constexpr explicit basic_list(T const (&values)[M]) {}
-	constexpr explicit basic_list(T const (&values)[0]) {} //!< \bug Not legal C++ (zero-length array).
 
 	template<std::size_t M>
 	constexpr basic_list(T const (&values)[M], T const& value) {}
-	constexpr basic_list(T const (&values)[0], T const& value) {} //!< \bug Not legal C++ (zero-length array).
 
 	constexpr basic_list(std::initializer_list<T> values) {}
 	constexpr basic_list(std::initializer_list<T> values, T const& value) {}
