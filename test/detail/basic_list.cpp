@@ -162,7 +162,7 @@ FAIL(TEST(set_n_n) { WITH(int, 2, {0,1}); DO(.set(2, 2)); })
 
 
 // insert(size_type, T const&)
-FAIL(TEST(insert_T_0_0) { WITH(int, 0,); DO(.insert(0, 2)); } })
+FAIL(TEST(insert_T_0_0) { WITH(int, 0, {}); DO(.insert(0, 2)); } })
 TEST(insert_T_0_1) { WITH(int, 1, {0}); DO(.insert(0, 2)); EXPECTING(1, {2}); }
 TEST(insert_T_0_n) { WITH(int, 2, {0,1}); DO(.insert(0, 2)); EXPECTING(2, {2,0}); }
 
@@ -171,5 +171,25 @@ TEST(insert_T_1_n) { WITH(int, 2, {0,1}); DO(.insert(1, 2)); EXPECTING(2, {0,2})
 
 FAIL(TEST(insert_T_n_n) { WITH(int, 2, {0,1}); DO(.insert(2, 2)); })
 
+
+// insert(size_type, std::initializer_list<T>)
+FAIL(TEST(insert_Ts_0_0_0) { WITH(int, 0, {}); DO(.insert(0, {})); })
+TEST(insert_Ts_0_0_1) { WITH(int, 1, {0}); DO(.insert(0, {})); EXPECTING(1, {0}); }
+TEST(insert_Ts_0_0_n) { WITH(int, 2, {0,1}); DO(.insert(0, {})); EXPECTING(2, {0,1}); }
+
+TEST(insert_Ts_0_1_1) { WITH(int, 1, {0}); DO(.insert(0, {2})); EXPECTING(1, {2}); }
+TEST(insert_Ts_0_1_n) { WITH(int, 2, {0,1}); DO(.insert(0, {2})); EXPECTING(2, {2,0}); }
+
+TEST(insert_Ts_0_2_1) { WITH(int, 1, {0}); DO(.insert(0, {2,3})); EXPECTING(1, {2}); }
+TEST(insert_Ts_0_2_n) { WITH(int, 2, {0,1}); DO(.insert(0, {2,3})); EXPECTING(2, {2,3}); }
+
+FAIL(TEST(insert_Ts_1_0_1) { WITH(int, 1, {0}); DO(.insert(1, {})); })
+TEST(insert_Ts_1_0_n) { WITH(int, 2, {0,1}); DO(.insert(1, {})); EXPECTING(2, {0,1}); }
+
+TEST(insert_Ts_1_1_n) { WITH(int, 2, {0,1}); DO(.insert(1, {2})); EXPECTING(2, {0,2}); }
+
+TEST(insert_Ts_1_2_n) { WITH(int, 2, {0,1}); DO(.insert(1, {2,3})); EXPECTING(2, {0,2}); }
+
+FAIL(TEST(insert_Ts_2_0_n) { WITH(int, 2, {0,1}); DO(.insert(2, {})); })
 
 int main() {}
