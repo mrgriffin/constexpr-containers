@@ -198,10 +198,20 @@ FAIL(TEST(erase_0_0) { WITH(int, 0, {}); DO(.erase(0)); })
 TEST(erase_0_1) { WITH(int, 1, {1}); DO(.erase(0)); EXPECTING(1, {0}); }
 TEST(erase_0_n) { WITH(int, 2, {1,2}); DO(.erase(0)); EXPECTING(2, {2,0}); }
 
+FAIL(TEST(erase_1_1) { WITH(int, 1, {1}); DO(.erase(1)); })
+TEST(erase_1_n) { WITH(int, 2, {1,2}); DO(.erase(1)); EXPECTING(2, {1,0}); }
+
+FAIL(TEST(erase_n_n) { WITH(int, 2, {1,2}); DO(.erase(2)); })
 
 // erase(size_type, T const&)
 FAIL(TEST(erase_T_0_0) { WITH(int, 0, {}); DO(.erase(0, 3)); })
 TEST(erase_T_0_1) { WITH(int, 1, {1}); DO(.erase(0, 3)); EXPECTING(1, {3}); }
 TEST(erase_T_0_n) { WITH(int, 2, {1,2}); DO(.erase(0, 3)); EXPECTING(2, {2,3}); }
+
+FAIL(TEST(erase_T_1_1) { WITH(int, 1, {1}); DO(.erase(1, 3)); })
+TEST(erase_T_1_n) { WITH(int, 2, {1,2}); DO(.erase(1, 3)); EXPECTING(2, {1,3}); }
+
+FAIL(TEST(erase_T_n_n) { WITH(int, 2, {1,2}); DO(.erase(2, 3)); })
+
 
 int main() {}
