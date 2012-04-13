@@ -225,7 +225,13 @@ public:
 		return const_iterator(*this, N);
 	}
 
-private:
+	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
+	//! \details The remaining elements are default-constructed.
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last)
+		: basic_list(first, last, T())
+		{}
+
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
 	//! \details The remaining elements are copy-constructed from \p value.
 	template<class RandomAccessIterator>
@@ -234,6 +240,7 @@ private:
 		, tail(first != last ? first + 1 : first, last, value)
 		{}
 
+private:
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ ( \p first2, \p last2 ].
 	//! \details The remaining elements are copy-constructed from \p value.
 	template<class RandomAccessIterator1, class RandomAccessIterator2>
@@ -343,12 +350,15 @@ public:
 	constexpr const_iterator end() { return cend(); }
 	constexpr const_iterator cend() { return const_iterator(*this); }
 
-private:
-	// TODO: More descript error messages.
-	constexpr int fail() { return throw "attempt to access outside of array", 0; }
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last) {}
 
 	template<class RandomAccessIterator>
 	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last, T const& value) {}
+
+private:
+	// TODO: More descript error messages.
+	constexpr int fail() { return throw "attempt to access outside of array", 0; }
 
 	template<class RandomAccessIterator1, class RandomAccessIterator2>
 	constexpr basic_list(RandomAccessIterator1 first1, RandomAccessIterator1 last1, RandomAccessIterator2 first2, RandomAccessIterator2 last2, T const& value) {}
