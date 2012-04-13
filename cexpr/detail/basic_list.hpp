@@ -1,6 +1,7 @@
 /*!
  * \file list.hpp
  * \brief \c constexpr statically-sized container.
+ * \details Structure for backing more complex containers (similar to how a T[] backs a std::vector<T>).
  */
 
 #ifndef CEXPR_DETAIL_LIST
@@ -30,8 +31,7 @@ template<typename T, std::size_t N>
 class basic_list_iterator {
 public:
 	constexpr basic_list_iterator(basic_list<T, N> const& list)
-		: list(list)
-		, position(0)
+		: basic_list_iterator(list, 0)
 		{}
 
 	constexpr basic_list_iterator(basic_list<T, N> const& list, typename basic_list<T, N>::size_type position)
@@ -59,7 +59,8 @@ public:
 	}
 
 private:
-	basic_list<T, N> const& list;
+	// TODO: Is it possible to make this a const reference to list?
+	basic_list<T, N> list;
 	typename basic_list<T, N>::size_type position;
 };
 
@@ -75,6 +76,7 @@ constexpr bool operator!=(basic_list_iterator<T, N> lhs, basic_list_iterator<T, 
 }
 
 //! \c constexpr list containing exactly \p N elements of type \p T.
+//! \todo Throw exceptions when indexing out of range (index N safe for non-accessor methods).
 template<typename T, std::size_t N>
 class basic_list {
 friend class basic_list<T, N+1>;
@@ -178,6 +180,7 @@ public:
 
 	//! Removes the element at \p pos.
 	//! \details The element at \p N - 1 is copy-constructed from \p value.
+	// TODO: Stop this clashing with erase(size_type, size_type) for T = int.
 	constexpr basic_list erase(size_type pos, T const& value) {
 		return erase(pos, pos + 1, value);
 	}
@@ -225,18 +228,18 @@ public:
 private:
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
 	//! \details The remaining elements are copy-constructed from \p value.
-	template<class InputIterator>
-	constexpr basic_list(InputIterator first, InputIterator last, T const& value)
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last, T const& value)
 		: head(first != last ? *first : value)
 		, tail(first != last ? first + 1 : first, last, value)
 		{}
 
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ ( \p first2, \p last2 ].
 	//! \details The remaining elements are copy-constructed from \p value.
-	template<class InputIterator1, class InputIterator2>
+	template<class RandomAccessIterator1, class RandomAccessIterator2>
 	constexpr basic_list(
-		InputIterator1 first1, InputIterator1 last1,
-		InputIterator2 first2, InputIterator2 last2,
+		RandomAccessIterator1 first1, RandomAccessIterator1 last1,
+		RandomAccessIterator2 first2, RandomAccessIterator2 last2,
 		T const& value)
 		: head(first1 != last1 ? *first1 : first2 != last2 ? *first2 : value)
 		, tail(
@@ -249,11 +252,11 @@ private:
 	//! \details \p inserted should be false when called non-recursively.
 	//! \details The remaining elements are copy-constructed from \p value.
 	//! \deprecated Will be removed once I find a way to take an "iterator" to a single value.
-	template<class InputIterator1, class InputIterator2>
+	template<class RandomAccessIterator1, class RandomAccessIterator2>
 	constexpr basic_list(
-		InputIterator1 first1, InputIterator1 last1,
+		RandomAccessIterator1 first1, RandomAccessIterator1 last1,
 		T const& insert, bool inserted,
-		InputIterator2 first2, InputIterator2 last2,
+		RandomAccessIterator2 first2, RandomAccessIterator2 last2,
 		T const& value)
 		: head(first1 != last1 ? *first1 : !inserted ? insert : first2 != last2 ? *first2 : value)
 		, tail(
@@ -265,11 +268,11 @@ private:
 
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ ( \p first2, \p last2 ] ++ ( \p first3, \p last3 ].
 	//! \details The remaining elements are copy-constructed from \p value.
-	template<class InputIterator1, class InputIterator2, class InputIterator3>
+	template<class RandomAccessIterator1, class RandomAccessIterator2, class RandomAccessIterator3>
 	constexpr basic_list(
-		InputIterator1 first1, InputIterator1 last1,
-		InputIterator2 first2, InputIterator2 last2,
-		InputIterator3 first3, InputIterator3 last3,
+		RandomAccessIterator1 first1, RandomAccessIterator1 last1,
+		RandomAccessIterator2 first2, RandomAccessIterator2 last2,
+		RandomAccessIterator3 first3, RandomAccessIterator3 last3,
 		T const& value)
 		: head(first1 != last1 ? *first1 : first2 != last2 ? *first2 : first3 != last3 ? *first3 : value)
 		, tail(
@@ -327,31 +330,34 @@ public:
 	constexpr basic_list insert(size_type pos, std::initializer_list<T> values) { return *this; }
 
 	constexpr basic_list erase(size_type pos) { return *this; }
+	constexpr basic_list erase(size_type pos, T const& value) { return *this; }
 	constexpr basic_list erase(size_type first, size_type last) { return *this; }
+	constexpr basic_list erase(size_type first, size_type last, T const& value) { return *this; }
 
 	constexpr size_type size() { return 0; }
 
 	// TODO: Fix cbegin and cend.
-	//constexpr const_iterator begin() { return cbegin(); }
-	//constexpr const_iterator cbegin() { return const_iterator(*this); }
+	constexpr const_iterator begin() { return cbegin(); }
+	constexpr const_iterator cbegin() { return const_iterator(*this); }
 
-	//constexpr const_iterator end() { return cend(); }
-	//constexpr const_iterator cend() { return const_iterator(*this); }
+	constexpr const_iterator end() { return cend(); }
+	constexpr const_iterator cend() { return const_iterator(*this); }
 
 private:
+	// TODO: More descript error messages.
 	constexpr int fail() { return throw "attempt to access outside of array", 0; }
 
-	template<class InputIterator>
-	constexpr basic_list(InputIterator first, InputIterator last, T const& value) {}
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last, T const& value) {}
 
-	template<class InputIterator1, class InputIterator2>
-	constexpr basic_list(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2, T const& value) {}
+	template<class RandomAccessIterator1, class RandomAccessIterator2>
+	constexpr basic_list(RandomAccessIterator1 first1, RandomAccessIterator1 last1, RandomAccessIterator2 first2, RandomAccessIterator2 last2, T const& value) {}
 	
-	template<class InputIterator1, class InputIterator2>
-	constexpr basic_list(InputIterator1 first1, InputIterator1 last1, T const& insert, bool inserted, InputIterator2 first2, InputIterator2 last2, T const& value) {}
+	template<class RandomAccessIterator1, class RandomAccessIterator2>
+	constexpr basic_list(RandomAccessIterator1 first1, RandomAccessIterator1 last1, T const& insert, bool inserted, RandomAccessIterator2 first2, RandomAccessIterator2 last2, T const& value) {}
 
-	template<class InputIterator1, class InputIterator2, class InputIterator3>
-	constexpr basic_list(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2, InputIterator2 last2, InputIterator3 first3, InputIterator3 last3, T const& value) {}
+	template<class RandomAccessIterator1, class RandomAccessIterator2, class RandomAccessIterator3>
+	constexpr basic_list(RandomAccessIterator1 first1, RandomAccessIterator1 last1, RandomAccessIterator2 first2, RandomAccessIterator2 last2, RandomAccessIterator3 first3, RandomAccessIterator3 last3, T const& value) {}
 
 	template<std::size_t M>
 	constexpr basic_list(T const (&values)[M], size_type pos, T const& value) {}

@@ -18,7 +18,9 @@ void PASTE2(test_, name)()
 
 //! A test that should fail at compile time.
 // TODO: Create a unit test framework that ensures the FAILs fail.
+#ifndef FAIL
 #define FAIL(...)
+#endif
 
 //! The size and values in the list being tested.
 //! \param T the type of the elements of the list.
@@ -203,6 +205,7 @@ TEST(erase_1_n) { WITH(int, 2, {1,2}); DO(.erase(1)); EXPECTING(2, {1,0}); }
 
 FAIL(TEST(erase_n_n) { WITH(int, 2, {1,2}); DO(.erase(2)); })
 
+
 // erase(size_type, T const&)
 FAIL(TEST(erase_T_0_0) { WITH(int, 0, {}); DO(.erase(0, 3)); })
 TEST(erase_T_0_1) { WITH(int, 1, {1}); DO(.erase(0, 3)); EXPECTING(1, {3}); }
@@ -212,6 +215,92 @@ FAIL(TEST(erase_T_1_1) { WITH(int, 1, {1}); DO(.erase(1, 3)); })
 TEST(erase_T_1_n) { WITH(int, 2, {1,2}); DO(.erase(1, 3)); EXPECTING(2, {1,3}); }
 
 FAIL(TEST(erase_T_n_n) { WITH(int, 2, {1,2}); DO(.erase(2, 3)); })
+
+
+// erase(size_type, size_type)
+TEST(erase_0_0_0) { WITH(int, 0, {}); DO(.erase(0UL, 0UL)); EXPECTING(0, {}); }
+TEST(erase_0_0_1) { WITH(int, 1, {1}); DO(.erase(0UL, 0UL)); EXPECTING(1, {1}); }
+TEST(erase_0_0_n) { WITH(int, 2, {1,2}); DO(.erase(0UL, 0UL)); EXPECTING(2, {1,2}); }
+
+FAIL(TEST(erase_0_1_0) { WITH(int, 0, {}); DO(.erase(0UL, 1UL)); })
+TEST(erase_0_1_1) { WITH(int, 1, {1}); DO(.erase(0UL, 1UL)); EXPECTING(1, {0}); }
+TEST(erase_0_1_n) { WITH(int, 2, {1,2}); DO(.erase(0UL, 1UL)); EXPECTING(2, {2,0}); }
+
+FAIL(TEST(erase_0_n_1) { WITH(int, 1, {1}); DO(.erase(0UL, 2UL)); })
+TEST(erase_0_n_n) { WITH(int, 2, {1,2}); DO(.erase(0UL, 2UL)); EXPECTING(2, {0,0}); }
+
+FAIL(TEST(erase_0_n1_1) { WITH(int, 2, {1,2}); DO(.erase(0UL, 3UL)); })
+
+FAIL(TEST(erase_1_1_0) { WITH(int, 0, {}); DO(.erase(1UL, 1UL)); })
+FAIL(TEST(erase_1_1_1) { WITH(int, 1, {1}); DO(.erase(1UL, 1UL)); })
+TEST(erase_1_1_n) { WITH(int, 2, {1,2}); DO(.erase(1UL, 1UL)); EXPECTING(2, {1,0}); }
+
+FAIL(TEST(erase_1_n_n) { WITH(int, 2, {1,2}); DO(.erase(1UL, 2UL)); })
+
+
+// erase(size_type, size_type, T const&)
+TEST(erase_T_0_0_0) { WITH(int, 0, {}); DO(.erase(0, 0, 3)); EXPECTING(0, {}); }
+TEST(erase_T_0_0_1) { WITH(int, 1, {1}); DO(.erase(0, 0, 3)); EXPECTING(1, {1}); }
+TEST(erase_T_0_0_n) { WITH(int, 2, {1,2}); DO(.erase(0, 0, 3)); EXPECTING(2, {1,2}); }
+
+FAIL(TEST(erase_T_0_1_0) { WITH(int, 0, {}); DO(.erase(0, 1, 3)); })
+TEST(erase_T_0_1_1) { WITH(int, 1, {1}); DO(.erase(0, 1, 3)); EXPECTING(1, {3}); }
+TEST(erase_T_0_1_n) { WITH(int, 2, {1,2}); DO(.erase(0, 1, 3)); EXPECTING(2, {2,3}); }
+
+FAIL(TEST(erase_T_0_n_1) { WITH(int, 1, {1}); DO(.erase(0, 2, 3)); })
+TEST(erase_T_0_n_n) { WITH(int, 2, {1,2}); DO(.erase(0, 2, 3)); EXPECTING(2, {3,3}); }
+
+FAIL(TEST(erase_T_0_n1_1) { WITH(int, 2, {1,2}); DO(.erase(0, 3, 3)); })
+
+FAIL(TEST(erase_T_1_1_0) { WITH(int, 0, {}); DO(.erase(1, 1, 3)); })
+FAIL(TEST(erase_T_1_1_1) { WITH(int, 1, {1}); DO(.erase(1, 1, 3)); })
+TEST(erase_T_1_1_n) { WITH(int, 2, {1,2}); DO(.erase(1, 1, 3)); EXPECTING(2, {1,3}); }
+
+FAIL(TEST(erase_T_1_n_n) { WITH(int, 2, {1,2}); DO(.erase(1, 2, 3)); })
+
+
+// begin()
+TEST(begin_0) {
+	WITH(int, 0, {});
+	constexpr auto it = list_.begin();
+	STATIC_ASSERT_EQUALS(it, list_.begin());
+	STATIC_ASSERT_EQUALS(it, list_.cbegin());
+	STATIC_ASSERT_EQUALS(it, list_.end());
+	STATIC_ASSERT_EQUALS(it, list_.cend());
+}
+
+TEST(begin_1) {
+	WITH(int, 1, {1});
+	constexpr auto it = list_.begin();
+	STATIC_ASSERT_EQUALS(it, list_.begin());
+	STATIC_ASSERT_EQUALS(it, list_.cbegin());
+	STATIC_ASSERT_EQUALS(*it, 1);
+}
+
+TEST(begin_n) {
+	WITH(int, 2, {1,2});
+	constexpr auto it = list_.begin();
+	STATIC_ASSERT_EQUALS(it, list_.begin());
+	STATIC_ASSERT_EQUALS(it, list_.cbegin());
+	STATIC_ASSERT_EQUALS(*it, 1);
+}
+
+
+// end()
+// HINT: begin_0 covers end_0
+TEST(end_1) {
+	WITH(int, 1, {1});
+	constexpr auto it = list_.end();
+	STATIC_ASSERT_EQUALS(it, list_.end());
+	STATIC_ASSERT_EQUALS(it, list_.cend());
+}
+
+TEST(end_n) {
+	WITH(int, 2, {1,2});
+	constexpr auto it = list_.end();
+	STATIC_ASSERT_EQUALS(it, list_.end());
+	STATIC_ASSERT_EQUALS(it, list_.cend());
+}
 
 
 int main() {}
