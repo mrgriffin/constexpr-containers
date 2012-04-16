@@ -27,6 +27,7 @@ template<typename T, std::size_t N>
 constexpr bool operator!=(basic_list_iterator<T, N> lhs, basic_list_iterator<T, N> rhs);
 
 //! \c constexpr \c std::iterator -like object for iterating through basic_list.
+//! \warning Makes a copy of the list being iterated.
 template<typename T, std::size_t N>
 class basic_list_iterator {
 public:
@@ -53,7 +54,7 @@ public:
 	friend bool operator!=<>(basic_list_iterator, basic_list_iterator);
 
 	//! Returns the current value.
-	//! \warning Needs optimization.
+	//! \warning Recurses \p position times.
 	constexpr T operator*() {
 		return list[position];
 	}
@@ -64,9 +65,12 @@ private:
 	typename basic_list<T, N>::size_type position;
 };
 
+//! Compares \p lhs and \p rhs to see if they point to the same location.
+//! \warning Will compare equal for list1[n] and list2[n] where list1 != list2.
 template<typename T, std::size_t N>
 constexpr bool operator==(basic_list_iterator<T, N> lhs, basic_list_iterator<T, N> rhs) {
 	// TODO: How do we compare two lists for identity equality?
+	// HINT: Could compare elements of lhs and rhs for equality.
 	return /*&lhs.list == &rhs.list && */lhs.position == rhs.position;
 }
 
@@ -77,6 +81,7 @@ constexpr bool operator!=(basic_list_iterator<T, N> lhs, basic_list_iterator<T, 
 
 //! \c constexpr list containing exactly \p N elements of type \p T.
 //! \todo Throw exceptions when indexing out of range (index N safe for non-accessor methods).
+//! \todo Take parameters as \c const_iterator rather than \c size_type where appropriate once \c basic_list_iterator does not copy list.
 template<typename T, std::size_t N>
 class basic_list {
 friend class basic_list<T, N+1>;
@@ -145,6 +150,21 @@ public:
 	//! \details The remaining elements are copy-constructed from \p value.
 	constexpr basic_list(std::initializer_list<T> values, T const& value)
 		: basic_list(values.begin(), values.end(), value) {}
+
+	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
+	//! \details The remaining elements are default-constructed.
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last)
+		: basic_list(first, last, T())
+		{}
+
+	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
+	//! \details The remaining elements are copy-constructed from \p value.
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last, T const& value)
+		: head(first != last ? *first : value)
+		, tail(first != last ? first + 1 : first, last, value)
+		{}
 
 	//! Returns the element at \p pos.
 	constexpr T operator[](size_type pos) {
@@ -224,21 +244,6 @@ public:
 	constexpr const_iterator cend() {
 		return const_iterator(*this, N);
 	}
-
-	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
-	//! \details The remaining elements are default-constructed.
-	template<class RandomAccessIterator>
-	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last)
-		: basic_list(first, last, T())
-		{}
-
-	//! Constructs a list containing up to the first \p N elements in the range ( \p first, \p last ].
-	//! \details The remaining elements are copy-constructed from \p value.
-	template<class RandomAccessIterator>
-	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last, T const& value)
-		: head(first != last ? *first : value)
-		, tail(first != last ? first + 1 : first, last, value)
-		{}
 
 private:
 	//! Constructs a list containing up to the first \p N elements in the range ( \p first1, \p last1 ] ++ ( \p first2, \p last2 ].
@@ -329,6 +334,12 @@ public:
 	constexpr basic_list(std::initializer_list<T> values) {}
 	constexpr basic_list(std::initializer_list<T> values, T const& value) {}
 
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last) {}
+
+	template<class RandomAccessIterator>
+	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last, T const& value) {}
+
 	constexpr T operator[](size_type pos) { return fail(), T(); }
 
 	constexpr basic_list set(size_type pos, T const& value) { return *this; }
@@ -343,18 +354,11 @@ public:
 
 	constexpr size_type size() { return 0; }
 
-	// TODO: Fix cbegin and cend.
 	constexpr const_iterator begin() { return cbegin(); }
 	constexpr const_iterator cbegin() { return const_iterator(*this); }
 
 	constexpr const_iterator end() { return cend(); }
 	constexpr const_iterator cend() { return const_iterator(*this); }
-
-	template<class RandomAccessIterator>
-	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last) {}
-
-	template<class RandomAccessIterator>
-	constexpr basic_list(RandomAccessIterator first, RandomAccessIterator last, T const& value) {}
 
 private:
 	// TODO: More descript error messages.
