@@ -18,10 +18,8 @@ constexpr basic_list<T, N+M> merge(basic_list<T, N> list1, basic_list<T, M> list
 			? basic_list<T, N+M>(merge(basic_list<T, (N > 0 ? N-1 : 0)>(list1.begin() + 1, list1.end()), list2)).insert(0, list1[0])
 			: basic_list<T, N+M>(merge(list1, basic_list<T, (M > 0 ? M-1 : 0)>(list2.begin() + 1, list2.end()))).insert(0, list2[0])
 		: N > 0
-			? basic_list<T, N+M>(list1) // HINT: N+M == N
-			: M > 0
-				? basic_list<T, N+M>(list2) // HINT: N+M == M
-				: basic_list<T, N+M>(); // HINT: N+M == 0
+			? basic_list<T, N+M>(list1)  // HINT: N+M == N
+			: basic_list<T, N+M>(list2); // HINT: N+M == M
 }
 
 template<typename T, size_t N>
