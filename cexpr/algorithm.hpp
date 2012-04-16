@@ -8,7 +8,7 @@
 namespace cexpr {
 
 /*!
- * Sorts the elements in \p container.
+ * Sorts the elements in \p container using <=.
  */
 template<class Container>
 constexpr Container sort(Container const& container);
@@ -32,6 +32,7 @@ namespace detail {
  * else
  *     return list2
  */
+// TODO: Have a list(list, size_type, size_type) constructor (avoids 2 copies of list).
 template<typename T, std::size_t N, std::size_t M, class Compare>
 constexpr basic_list<T, N+M> merge(basic_list<T, N> list1, basic_list<T, M> list2, Compare cmp) {
 	return N > 0 && M > 0
@@ -61,6 +62,7 @@ constexpr basic_list<T, N> sort(basic_list<T, N> const& list) {
 	return sort(list, std::less_equal<T>());
 }
 
+// TODO: Is this stable? Decide whether cexpr::sort should guarantee stability.
 template<typename T, std::size_t N, class Compare>
 constexpr basic_list<T, N> sort(basic_list<T, N> const& list, Compare cmp) {
 	return N == 1
