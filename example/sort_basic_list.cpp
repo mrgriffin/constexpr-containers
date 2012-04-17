@@ -1,5 +1,5 @@
 /*!
- * \file sort_asic_list.cpp
+ * \file sort_basic_list.cpp
  * \brief Demonstrates a merge sort on a basic_list.
  */
 
