@@ -1,0 +1,36 @@
+CONSTEXPR CONTAINER LIBRARY
+
+STYLE
+A conversion to the Boost style is required, reducing lines to a maximum of 80
+characters long and replacing all tabs with spaces.
+
+EXAMPLES
+See the examples directory for how to use this library (currently only describes
+an implementation detail that is not guaranteed to be stable).
+
+FUTURE
+Moving forwards there will be containers such as vector<T, Storage> and
+basic_string<T, Storage> that utilize detail::basic_list<T, N> as the backing
+storage for the data.
+
+These containers will hold a size member internally and provide as many of the
+methods from their standard-library equivalents as possible.
+
+basic_list will also be modified so that when T = std::size_t there is no
+ambiguity between erase(size_type pos, T const& value) and
+erase(size_type first, size_type last).
+Finally insert(size_type pos, std::initializer_list<T> values) will be replaced
+by a method taking a begin and end iterator for versatility and the higher-level
+containers can then use begin and end on their initializer_lists to assign to
+the underlying basic_list.
+
+The macros used to test basic_list need to be extended and require a script to
+check for expected compilation failures.
+
+Also it is important to research techniques to minimize the depth of recursion as
+C++11 only guarantees a call stack of 512.  Theoretically a basic_list<N> could
+be replaced by an array of two basic_list<ceiling(N/2)>s which should halve the
+depth required for initialization.  All methods should take care to ensure the
+fewest number of mutations as each one requires making a complete copy of the
+object being mutated, possibly we can store a list of transformations to make
+and apply them all at the same time.
